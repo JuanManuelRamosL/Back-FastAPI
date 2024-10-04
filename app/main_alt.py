@@ -9,10 +9,10 @@ app_alt = FastAPI()
 
 app_alt.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Permitir cualquier origen (en desarrollo)
+    allow_origins=["http://localhost:8081"],  # Reemplaza con el origen de tu frontend
     allow_credentials=True,
-    allow_methods=["*"],  # Permitir todos los métodos (GET, POST, etc.)
-    allow_headers=["*"],  # Permitir todos los headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Crear las tablas en la base de datos
