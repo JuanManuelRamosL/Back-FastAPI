@@ -23,7 +23,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     email = Column(String, unique=True, index=True)
-    workspace_id = Column(Integer, ForeignKey("workspaces.id"))
+    workspace_id = Column(Integer, ForeignKey("workspaces.id"), nullable=True)  
     
     tasks = relationship("Task", back_populates="owner")
     workspace = relationship("Workspace", back_populates="users")

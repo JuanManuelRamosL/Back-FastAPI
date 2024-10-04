@@ -2,9 +2,18 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from . import crud, models, schemas
 from .database import engine, Base, get_db
+from fastapi.middleware.cors import CORSMiddleware
 
 # Crear la app de FastAPI
 app_alt = FastAPI()
+
+app_alt.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permitir cualquier origen (en desarrollo)
+    allow_credentials=True,
+    allow_methods=["*"],  # Permitir todos los métodos (GET, POST, etc.)
+    allow_headers=["*"],  # Permitir todos los headers
+)
 
 # Crear las tablas en la base de datos
 Base.metadata.create_all(bind=engine)
@@ -36,6 +45,11 @@ def read_user(user_id: int, db: Session = Depends(get_db)):
 @app_alt.post("/users/{user_id}/tasks/", response_model=schemas.Task)
 def create_task_for_user(user_id: int, task: schemas.TaskCreate, db: Session = Depends(get_db)):
     return crud.create_task(db=db, task=task, user_id=user_id)
+
+@app_alt.delete("/tasks/{task_id}", response_model=dict)
+def delete_task(task_id: int, db: Session = Depends(get_db)):
+    return crud.delete_task(db=db, task_id=task_id)
+
 
 # Instrucción para levantar la app
 if __name__ == "__main__":

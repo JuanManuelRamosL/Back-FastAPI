@@ -33,5 +33,14 @@ def create_task(db: Session, task: schemas.TaskCreate, user_id: int):
     db.refresh(db_task)
     return db_task
 
+def delete_task(db: Session, task_id: int):
+    task = db.query(models.Task).filter(models.Task.id == task_id).first()
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    db.delete(task)
+    db.commit()
+    return {"message": "Task deleted successfully"}
+
 
 # uvicorn app.main_alt:app_alt --reload --port 8001
