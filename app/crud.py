@@ -59,5 +59,8 @@ def delete_task(db: Session, task_id: int):
     db.commit()
     return {"message": "Task deleted successfully"}
 
+def get_user_by_email(db: Session, email: str):
+    return db.query(models.User).filter(models.User.email == email).first()
+
 
 # uvicorn app.main_alt:app_alt --reload --port 8001

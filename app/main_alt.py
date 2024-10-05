@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from . import crud, models, schemas
 from .database import engine, Base, get_db
@@ -49,6 +49,18 @@ def create_task_for_user(user_id: int, task: schemas.TaskCreate, db: Session = D
 @app_alt.delete("/tasks/{task_id}", response_model=dict)
 def delete_task(task_id: int, db: Session = Depends(get_db)):
     return crud.delete_task(db=db, task_id=task_id)
+
+@app_alt.post("/login/")
+async def login_user(request: Request, db: Session = Depends(get_db)):
+    data = await request.json()
+    email = data.get("email")
+    if not email:
+        raise HTTPException(status_code=400, detail="Email es requerido")
+    db_user = crud.get_user_by_email(db=db, email=email)
+    # Si no se encuentra el usuario, lanzar una excepción
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    return db_user
 
 
 # Instrucción para levantar la app
