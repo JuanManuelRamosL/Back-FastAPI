@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel
 from enum import Enum
 
@@ -26,7 +27,7 @@ class UserBase(BaseModel):
     email: str
 
 class UserCreate(UserBase):
-    workspace_id: int  # Ahora se pasa el ID del workspace al crear un usuario
+   workspace_id: Optional[int] = None # Ahora se pasa el ID del workspace al crear un usuario
 
 class User(UserBase):
     id: int

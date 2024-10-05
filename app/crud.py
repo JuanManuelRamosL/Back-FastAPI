@@ -17,11 +17,28 @@ def get_workspace(db: Session, workspace_id: int):
     return db.query(models.Workspace).filter(models.Workspace.id == workspace_id).first()
 
 def create_user(db: Session, user: schemas.UserCreate):
+    # Si no se ha proporcionado un workspace_id, se crea o asigna uno por defecto
+    if not user.workspace_id:
+        # Intentar obtener un workspace por defecto
+        default_workspace = db.query(models.Workspace).filter_by(name="Default Workspace").first()
+        
+        # Si no existe, crearlo
+        if not default_workspace:
+            default_workspace = models.Workspace(name="Default Workspace")
+            db.add(default_workspace)
+            db.commit()
+            db.refresh(default_workspace)
+        
+        # Asignar el ID del workspace por defecto al usuario
+        user.workspace_id = default_workspace.id
+    
+    # Crear el usuario con el workspace asignado
     db_user = models.User(name=user.name, email=user.email, workspace_id=user.workspace_id)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     return db_user
+
 
 def get_user(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id == user_id).first()
