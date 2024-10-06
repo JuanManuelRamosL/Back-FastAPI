@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel
 from enum import Enum
 
@@ -17,7 +17,7 @@ class WorkspaceCreate(WorkspaceBase):
 
 class Workspace(WorkspaceBase):
     id: int
-    users: list["User"] = []  # Lista de usuarios en el workspace
+    users: List["User"] = []  # Lista de usuarios en el workspace
 
     class Config:
         from_attributes = True
@@ -26,13 +26,16 @@ class UserBase(BaseModel):
     name: str
     email: str
 
-class UserCreate(UserBase):
-   workspace_id: Optional[int] = None # Ahora se pasa el ID del workspace al crear un usuario
+class UserCreate(BaseModel):
+    name: str
+    email: str
+    workspace_ids: Optional[List[int]] = None  # Lista opcional de IDs de workspaces
+
 
 class User(UserBase):
     id: int
-    tasks: list["Task"] = []
-    workspace_id: int
+    tasks: List["Task"] = []
+    workspaces_ids: List[int] = []  # Lista de IDs de los workspaces
 
     class Config:
         from_attributes = True
@@ -40,7 +43,7 @@ class User(UserBase):
 class TaskBase(BaseModel):
     title: str
     description: str
-    status: TaskStatus = TaskStatus.ASSIGNED  # Campo de estado por defecto
+    status: TaskStatus = TaskStatus.ASSIGNED  # Estado por defecto
 
 class TaskCreate(TaskBase):
     pass

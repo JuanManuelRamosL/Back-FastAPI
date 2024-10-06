@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, ForeignKey, Enum, Table
 from sqlalchemy.orm import relationship
 from .database import Base
 import enum
@@ -10,12 +10,22 @@ class TaskStatus(enum.Enum):
     UNDER_REVIEW = "revisión"
     COMPLETED = "finalizada"
 
+# Tabla intermedia para la relación muchos a muchos entre User y Workspace
+user_workspaces = Table(
+    "user_workspaces",
+    Base.metadata,
+    Column("user_id", Integer, ForeignKey("users.id"), primary_key=True),
+    Column("workspace_id", Integer, ForeignKey("workspaces.id"), primary_key=True)
+)
+
 class Workspace(Base):
     __tablename__ = "workspaces"
     
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
-    users = relationship("User", back_populates="workspace")
+    
+    # Relación muchos a muchos con los usuarios
+    users = relationship("User", secondary=user_workspaces, back_populates="workspaces")
 
 class User(Base):
     __tablename__ = "users"
@@ -23,10 +33,11 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     email = Column(String, unique=True, index=True)
-    workspace_id = Column(Integer, ForeignKey("workspaces.id"), nullable=True)  
+    
+    # Relación muchos a muchos con los workspaces
+    workspaces = relationship("Workspace", secondary=user_workspaces, back_populates="users")
     
     tasks = relationship("Task", back_populates="owner")
-    workspace = relationship("Workspace", back_populates="users")
 
 class Task(Base):
     __tablename__ = "tasks"

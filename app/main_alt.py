@@ -63,6 +63,21 @@ async def login_user(request: Request, db: Session = Depends(get_db)):
     return db_user
 
 
+@app_alt.post("/users/{user_id}/workspaces/")
+def add_workspace(user_id: int, workspace_id: int, db: Session = Depends(get_db)):
+    user = crud.add_workspace_to_user(db=db, user_id=user_id, workspace_id=workspace_id)
+    return {"message": f"Workspace {workspace_id} agregado al usuario {user_id}", "user": user}
+
+# Endpoint para agregar un Workspace a un Usuario
+@app_alt.post("/users/{user_id}/workspaces/{workspace_id}/add", response_model=schemas.User)
+def add_workspace_to_user(user_id: int, workspace_id: int, db: Session = Depends(get_db)):
+    return crud.add_workspace_to_user(db, user_id=user_id, workspace_id=workspace_id)
+
+# Endpoint para agregar un Usuario a un Workspace
+@app_alt.post("/workspaces/{workspace_id}/users/{user_id}/add", response_model=schemas.Workspace)
+def add_user_to_workspace(workspace_id: int, user_id: int, db: Session = Depends(get_db)):
+    return crud.add_user_to_workspace(db, user_id=user_id, workspace_id=workspace_id)
+
 # Instrucción para levantar la app
 if __name__ == "__main__":
     import uvicorn
