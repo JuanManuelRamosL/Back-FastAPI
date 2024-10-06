@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from . import crud, models, schemas
 from .database import engine, Base, get_db
 from fastapi.middleware.cors import CORSMiddleware
-
+from typing import  List
 # Crear la app de FastAPI
 app_alt = FastAPI()
 
@@ -77,6 +77,16 @@ def add_workspace_to_user(user_id: int, workspace_id: int, db: Session = Depends
 @app_alt.post("/workspaces/{workspace_id}/users/{user_id}/add", response_model=schemas.Workspace)
 def add_user_to_workspace(workspace_id: int, user_id: int, db: Session = Depends(get_db)):
     return crud.add_user_to_workspace(db, user_id=user_id, workspace_id=workspace_id)
+
+# Endpoint para obtener todos los workspaces de un usuario
+@app_alt.get("/users/{user_id}/workspaces", response_model=List[schemas.Workspace])
+def get_user_workspaces(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    return user.workspaces  # Devuelve todos los workspaces asociados al usuario
 
 # Instrucción para levantar la app
 if __name__ == "__main__":
