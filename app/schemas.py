@@ -18,6 +18,7 @@ class WorkspaceCreate(WorkspaceBase):
 class Workspace(WorkspaceBase):
     id: int
     users: List["User"] = []  # Lista de usuarios en el workspace
+    tasks: List["Task"] = []  # Lista de tareas del workspace
 
     class Config:
         from_attributes = True
@@ -30,7 +31,6 @@ class UserCreate(BaseModel):
     name: str
     email: str
     workspace_ids: Optional[List[int]] = None  # Lista opcional de IDs de workspaces
-
 
 class User(UserBase):
     id: int
@@ -51,6 +51,7 @@ class TaskCreate(TaskBase):
 class Task(TaskBase):
     id: int
     owner_id: int
+    workspace_id: int  # Agregar el ID del workspace al esquema
 
     class Config:
         from_attributes = True

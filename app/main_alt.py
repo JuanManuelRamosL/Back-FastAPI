@@ -88,6 +88,10 @@ def get_user_workspaces(user_id: int, db: Session = Depends(get_db)):
     
     return user.workspaces  # Devuelve todos los workspaces asociados al usuario
 
+@app_alt.post("/workspaces/{workspace_id}/tasks/", response_model=schemas.Task)
+def create_task_in_workspace(workspace_id: int, task: schemas.TaskCreate, user_id: int, db: Session = Depends(get_db)):
+    return crud.create_task(db=db, task=task, workspace_id=workspace_id, user_id=user_id)
+
 # Instrucción para levantar la app
 if __name__ == "__main__":
     import uvicorn

@@ -42,13 +42,18 @@ def create_user(db: Session, user: schemas.UserCreate):
 def get_user(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id == user_id).first()
 
-# Crear una tarea para un usuario
-def create_task(db: Session, task: schemas.TaskCreate, user_id: int):
-    db_task = models.Task(title=task.title, description=task.description, owner_id=user_id)
+def create_task(db: Session, task: schemas.TaskCreate, workspace_id: int, user_id: int):
+    db_task = models.Task(
+        title=task.title,
+        description=task.description,
+        workspace_id=workspace_id,
+        owner_id=user_id
+    )
     db.add(db_task)
     db.commit()
     db.refresh(db_task)
     return db_task
+
 
 # Eliminar una tarea por ID
 def delete_task(db: Session, task_id: int):

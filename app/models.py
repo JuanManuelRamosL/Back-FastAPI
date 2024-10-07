@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from .database import Base
 import enum
 
-# Definir un Enum para el estado de la tarea
+# Enum para el estado de la tarea
 class TaskStatus(enum.Enum):
     ASSIGNED = "asignada"
     IN_PROGRESS = "en proceso"
@@ -26,6 +26,9 @@ class Workspace(Base):
     
     # Relación muchos a muchos con los usuarios
     users = relationship("User", secondary=user_workspaces, back_populates="workspaces")
+    
+    # Relación uno a muchos con las tareas
+    tasks = relationship("Task", back_populates="workspace")
 
 class User(Base):
     __tablename__ = "users"
@@ -33,7 +36,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     email = Column(String, unique=True, index=True)
-    
+    image_url = Column(String, nullable=True)  # Campo opcional para la imagen
     # Relación muchos a muchos con los workspaces
     workspaces = relationship("Workspace", secondary=user_workspaces, back_populates="users")
     
@@ -45,7 +48,10 @@ class Task(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
     description = Column(String, index=True)
+    
     owner_id = Column(Integer, ForeignKey("users.id"))
+    workspace_id = Column(Integer, ForeignKey("workspaces.id"))  # Agregar ForeignKey al workspace
     status = Column(Enum(TaskStatus), default=TaskStatus.ASSIGNED)  # Estado de la tarea
     
-    owner = relationship("User", back_populates="tasks")
+    owner = relationship("User", back_populates="tasks")  # Relación con el usuario
+    workspace = relationship("Workspace", back_populates="tasks")  # Relación con el workspace
