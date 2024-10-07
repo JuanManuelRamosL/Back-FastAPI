@@ -107,4 +107,15 @@ def add_user_to_workspace(db: Session, user_id: int, workspace_id: int):
     db.refresh(workspace)
     return workspace
 
+def update_task_status(db: Session, task_id: int, new_status: str):
+    task = db.query(models.Task).filter(models.Task.id == task_id).first()
+    
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    task.status = new_status  # Actualizar el estado de la tarea
+    db.commit()  # Guardar los cambios en la base de datos
+    db.refresh(task)  # Refrescar la instancia para obtener los datos actualizados
+    return task
+
 # uvicorn app.main_alt:app_alt --reload --port 8001

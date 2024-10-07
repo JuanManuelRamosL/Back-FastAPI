@@ -104,6 +104,11 @@ def get_tasks_by_workspace(workspace_id: int, db: Session = Depends(get_db)):
     tasks = db.query(models.Task).filter(models.Task.workspace_id == workspace_id).all()
     return tasks
 
+# Actualizar el estado de una tarea
+@app_alt.put("/tasks/{task_id}/status")
+def update_task_status(task_id: int, new_status: str, db: Session = Depends(get_db)):
+    updated_task = crud.update_task_status(db=db, task_id=task_id, new_status=new_status)
+    return {"message": f"Tarea {task_id} actualizada con éxito", "task": updated_task}
 # Instrucción para levantar la app
 if __name__ == "__main__":
     import uvicorn
