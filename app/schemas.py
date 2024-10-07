@@ -46,7 +46,7 @@ class TaskBase(BaseModel):
     status: TaskStatus = TaskStatus.ASSIGNED  # Estado por defecto
 
 class TaskCreate(TaskBase):
-    pass
+    workspace_id: int  # Incluir el ID del workspace en la creación de tareas
 
 class Task(TaskBase):
     id: int
