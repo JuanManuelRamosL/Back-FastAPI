@@ -92,6 +92,11 @@ def get_user_workspaces(user_id: int, db: Session = Depends(get_db)):
 def create_task_in_workspace(workspace_id: int, task: schemas.TaskCreate, user_id: int, db: Session = Depends(get_db)):
     return crud.create_task(db=db, task=task, workspace_id=workspace_id, user_id=user_id)
 
+@app_alt.get("/workspaces/{workspace_id}/tasks", response_model=List[schemas.Task])
+def get_tasks_by_workspace(workspace_id: int, db: Session = Depends(get_db)):
+    tasks = db.query(models.Task).filter(models.Task.workspace_id == workspace_id).all()
+    return tasks
+
 # Instrucción para levantar la app
 if __name__ == "__main__":
     import uvicorn
