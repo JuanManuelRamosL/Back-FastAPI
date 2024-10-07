@@ -7,9 +7,16 @@ from typing import  List
 # Crear la app de FastAPI
 app_alt = FastAPI()
 
-app_alt.add_middleware(
+""" app_alt.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:8081"],  # Reemplaza con el origen de tu frontend
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+) """
+app_alt.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
