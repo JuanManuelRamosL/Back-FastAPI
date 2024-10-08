@@ -57,4 +57,4 @@ class Task(TaskBase):
         from_attributes = True
 
 class TaskStatusUpdate(BaseModel):
-    new_status: TaskStatus
+    new_status: str

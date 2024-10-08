@@ -105,10 +105,17 @@ def get_tasks_by_workspace(workspace_id: int, db: Session = Depends(get_db)):
     return tasks
 
 @app_alt.put("/tasks/{task_id}/status")
-def update_task_status(task_id: int, status_data: schemas.TaskStatusUpdate, db: Session = Depends(get_db)):
-    updated_task = crud.update_task_status(db=db, task_id=task_id, new_status=status_data.new_status)
-    return {"message": f"Tarea {task_id} actualizada con éxito", "task": updated_task}
+def update_task_status(task_id: int, status_data: dict, db: Session = Depends(get_db)):
+    task = db.query(models.Task).filter(models.Task.id == task_id).first()
 
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    task.status = status_data["new_status"]  # Actualizamos el estado de la tarea sin validaciones adicionales
+    db.commit()
+    db.refresh(task)
+
+    return {"message": f"Tarea {task_id} actualizada con éxito", "task": task}
 # Instrucción para levantar la app
 if __name__ == "__main__":
     import uvicorn
