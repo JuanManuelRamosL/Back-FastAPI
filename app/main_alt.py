@@ -30,6 +30,12 @@ Base.metadata.create_all(bind=engine)
 def read_root():
     return {"message": "Hola Mundo desde main_alt.py"}
 
+@app_alt.get("/workspaces/", response_model=List[schemas.Workspace])
+def get_all_workspaces(db: Session = Depends(get_db)):
+    workspaces = db.query(models.Workspace).all()
+    return workspaces
+
+
 @app_alt.post("/workspaces/", response_model=schemas.Workspace)
 def create_workspace(workspace: schemas.WorkspaceCreate, db: Session = Depends(get_db)):
     return crud.create_workspace(db, workspace)
