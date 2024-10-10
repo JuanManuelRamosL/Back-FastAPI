@@ -63,6 +63,19 @@ def create_task_for_user(user_id: int, task: schemas.TaskCreate, db: Session = D
 def delete_task(task_id: int, db: Session = Depends(get_db)):
     return crud.delete_task(db=db, task_id=task_id)
 
+@app_alt.get("/users/{user_id}/tasks", response_model=List[schemas.Task])
+def get_tasks_by_user(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
+    # Obtener todas las tareas asociadas a los workspaces del usuario
+    tasks = db.query(models.Task).join(models.Workspace).filter(models.Workspace.users.any(id=user_id)).all()
+
+    return tasks
+
+
 @app_alt.post("/login/")
 async def login_user(request: Request, db: Session = Depends(get_db)):
     data = await request.json()
