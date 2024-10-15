@@ -135,6 +135,20 @@ def update_task_status(task_id: int, status_data: dict, db: Session = Depends(ge
     db.refresh(task)
 
     return {"message": f"Tarea {task_id} actualizada con éxito", "task": task}
+
+
+@app_alt.delete("/tasks/{task_id}", response_model=schemas.Task)
+def delete_task(task_id: int, db: Session = Depends(get_db)):
+    task = db.query(models.Task).filter(models.Task.id == task_id).first()
+
+    if task is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    db.delete(task)
+    db.commit()
+
+    return {"message": f"Task with ID {task_id} has been deleted."}
+
 # Instrucción para levantar la app
 if __name__ == "__main__":
     import uvicorn
