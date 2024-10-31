@@ -30,6 +30,7 @@ class UserBase(BaseModel):
 class UserCreate(BaseModel):
     name: str
     email: str
+    password: str 
     workspace_ids: Optional[List[int]] = None  # Lista opcional de IDs de workspaces
 
 class User(UserBase):

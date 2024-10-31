@@ -21,7 +21,7 @@ def get_workspace(db: Session, workspace_id: int):
 # Crear un usuario
 def create_user(db: Session, user: schemas.UserCreate):
     try:
-        db_user = models.User(name=user.name, email=user.email)
+        db_user = models.User(name=user.name, email=user.email,password=user.password)
         
         # Si se ha pasado workspace_ids, agregar los workspaces al usuario
         if user.workspace_ids:
@@ -66,9 +66,10 @@ def delete_task(db: Session, task_id: int):
     return {"message": "Task deleted successfully"}
 
 # Obtener usuario por correo electrónico
-def get_user_by_email(db: Session, email: str):
-    return db.query(models.User).filter(models.User.email == email).first()
-
+def get_user_by_email(db: Session, email: str, pasword: str):
+    return db.query(models.User).filter(
+        (models.User.email == email) & (models.User.password == pasword)
+    ).first()
 # Agregar un workspace a un usuario
 def add_workspace_to_user(db: Session, user_id: int, workspace_id: int):
     user = db.query(models.User).filter(models.User.id == user_id).first()

@@ -80,9 +80,10 @@ def get_tasks_by_user(user_id: int, db: Session = Depends(get_db)):
 async def login_user(request: Request, db: Session = Depends(get_db)):
     data = await request.json()
     email = data.get("email")
+    pasword = data.get("pasword")
     if not email:
         raise HTTPException(status_code=400, detail="Email es requerido")
-    db_user = crud.get_user_by_email(db=db, email=email)
+    db_user = crud.get_user_by_email(db=db, email=email,pasword=pasword)
     # Si no se encuentra el usuario, lanzar una excepción
     if db_user is None:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")

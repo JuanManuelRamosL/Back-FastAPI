@@ -36,10 +36,10 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
     email = Column(String, unique=True, index=True)
+    password = Column(String)  # Agregar el campo de contraseña
     image_url = Column(String, nullable=True)  # Campo opcional para la imagen
-    # Relación muchos a muchos con los workspaces
+
     workspaces = relationship("Workspace", secondary=user_workspaces, back_populates="users")
-    
     tasks = relationship("Task", back_populates="owner")
 
 class Task(Base):
