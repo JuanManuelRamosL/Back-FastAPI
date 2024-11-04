@@ -1,6 +1,16 @@
 from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from enum import Enum
+from uuid import uuid4
+from datetime import datetime
+
+
+def generate_uuid():
+    return str(uuid4())
+
+
+def generate_date():
+    return str(datetime.now())
 
 # Definición del Enum para el estado de la tarea
 class TaskStatus(str, Enum):
@@ -59,3 +69,9 @@ class Task(TaskBase):
 
 class TaskStatusUpdate(BaseModel):
     new_status: str
+    
+class Product(BaseModel):
+    id: str = Field(default_factory=generate_uuid)
+    name: str
+    price: float
+    date: str = Field(default_factory=generate_date)

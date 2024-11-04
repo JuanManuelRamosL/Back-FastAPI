@@ -1,19 +1,16 @@
-from fastapi import FastAPI, Depends, HTTPException, Request,Query
+from fastapi import FastAPI, Depends, HTTPException, Request, Query
 from sqlalchemy.orm import Session
 from . import crud, models, schemas
 from .database import engine, Base, get_db
 from fastapi.middleware.cors import CORSMiddleware
-from typing import  List
+from typing import List
+from .cache_utils import cache_response
+import json
+
+
 # Crear la app de FastAPI
 app_alt = FastAPI()
 
-""" app_alt.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:8081"],  # Reemplaza con el origen de tu frontend
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-) """
 app_alt.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  
@@ -25,6 +22,7 @@ app_alt.add_middleware(
 # Crear las tablas en la base de datos
 Base.metadata.create_all(bind=engine)
 
+
 # Ruta raíz
 @app_alt.get("/")
 def read_root():
@@ -35,14 +33,50 @@ def get_all_workspaces(db: Session = Depends(get_db)):
     workspaces = db.query(models.Workspace).all()
     return workspaces
 
-
 @app_alt.post("/workspaces/", response_model=schemas.Workspace)
 def create_workspace(workspace: schemas.WorkspaceCreate, db: Session = Depends(get_db)):
-    return crud.create_workspace(db, workspace)
+    # Crear el workspace en la base de datos
+    new_workspace = crud.create_workspace(db, workspace)
+    
+    # Convertir el objeto ORM en un esquema de Pydantic
+    workspace_data = schemas.Workspace.from_orm(new_workspace)
+    
+    # Convertir listas a JSON strings antes de guardar en Redis
+    data = workspace_data.dict()
+    for key, value in data.items():
+        if isinstance(value, list):
+            data[key] = json.dumps(value)  # Convertir listas a JSON strings
+
+    # Guardar en Redis
+    crud.save_hash(key=str(workspace_data.id), data=data)
+    
+    return workspace_data
+
+
 
 @app_alt.get("/workspaces/{workspace_id}", response_model=schemas.Workspace)
 def get_workspace(workspace_id: int, db: Session = Depends(get_db)):
-    return crud.get_workspace(db, workspace_id)
+    id = str(workspace_id)
+    data = crud.get_hash(key=id)
+    
+    # Si no hay datos en Redis, busca en la base de datos
+    if len(data) == 0:
+        workspace = crud.get_workspace(db, workspace_id)
+        if not workspace:
+            raise HTTPException(status_code=404, detail="Workspace not found")
+        return workspace
+    
+    # Convertir los datos de Redis a un diccionario
+    workspace_data = {
+        'id': int(data.get(b'id')),  # Asegúrate de convertir los valores de bytes a int
+        'name': data.get(b'name').decode('utf-8'),  # Convierte de bytes a string
+        'tasks': json.loads(data.get(b'tasks').decode('utf-8')),  # Decodifica y convierte a lista
+        'users': json.loads(data.get(b'users').decode('utf-8')),  # Decodifica y convierte a lista
+    }
+
+    return schemas.Workspace(**workspace_data)  # Retorna una instancia del esquema
+
+    
 
 @app_alt.post("/users/", response_model=schemas.User)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
@@ -149,6 +183,23 @@ def delete_task(task_id: int, db: Session = Depends(get_db)):
     db.commit()
 
     return {"message": f"Task with ID {task_id} has been deleted."}
+
+fake_db = []
+@app_alt.post("/cache", response_model=schemas.Product)
+def create(product: schemas.Product):
+    try:
+        product_dict = product.dict()
+        # OPERATION DB
+        fake_db.append(product_dict)
+
+        # OPERATION CACHE
+
+        crud.save_hash(key=product_dict["id"], data=product_dict)
+
+        return product
+    except Exception as e:
+        return e
+
 
 # Instrucción para levantar la app
 if __name__ == "__main__":

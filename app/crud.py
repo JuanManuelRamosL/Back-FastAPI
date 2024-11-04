@@ -1,6 +1,8 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from . import models, schemas
+from .redisConn import redis_client
+from redis.exceptions import ResponseError
 
 # Crear un workspace
 def create_workspace(db: Session, workspace: schemas.WorkspaceCreate):
@@ -119,4 +121,23 @@ def update_task_status(db: Session, task_id: int, new_status: str):
     db.refresh(task)  # Refrescar la instancia para obtener los datos actualizados
     return task
 
+def save_hash(key: str, data: dict):
+    try:
+        redis_client.hset(name=key, mapping=data)
+    except ResponseError as e:
+        print(e)
+
+
+def get_hash(key: str):
+    try:
+        return redis_client.hgetall(name=key)
+    except ResponseError as e:
+        print(e)
+
+def delete_hash(key: str, keys: list):
+    try:
+        redis_client.hdel(key, *keys)
+    except ResponseError as e:
+        print(e)
+        
 # uvicorn app.main_alt:app_alt --reload --port 8001
