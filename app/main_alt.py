@@ -4,7 +4,6 @@ from . import crud, models, schemas
 from .database import engine, Base, get_db
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
-from .cache_utils import cache_response
 import json
 
 

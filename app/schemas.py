@@ -55,6 +55,7 @@ class TaskBase(BaseModel):
     title: str
     description: str
     status: TaskStatus = TaskStatus.ASSIGNED  # Estado por defecto
+    image_url: Optional[str] = None
 
 class TaskCreate(TaskBase):
     workspace_id: int  # Incluir el ID del workspace en la creación de tareas

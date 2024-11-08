@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from . import models, schemas
@@ -44,12 +45,13 @@ def create_user(db: Session, user: schemas.UserCreate):
 def get_user(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id == user_id).first()
 
-def create_task(db: Session, task: schemas.TaskCreate, workspace_id: int, user_id: int):
+def create_task(db: Session, task: schemas.TaskCreate, workspace_id: int, user_id: int ,image_url: Optional[str] = None):
     db_task = models.Task(
         title=task.title,
         description=task.description,
         workspace_id=workspace_id,
-        owner_id=user_id
+        owner_id=user_id,
+        image_url=image_url 
     )
     db.add(db_task)
     db.commit()

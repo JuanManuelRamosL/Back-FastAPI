@@ -52,6 +52,7 @@ class Task(Base):
     owner_id = Column(Integer, ForeignKey("users.id"))
     workspace_id = Column(Integer, ForeignKey("workspaces.id"))  # Agregar ForeignKey al workspace
     status = Column(Enum(TaskStatus), default=TaskStatus.ASSIGNED)  # Estado de la tarea
+    image_url = Column(String, nullable=True)
     
     owner = relationship("User", back_populates="tasks")  # Relación con el usuario
     workspace = relationship("Workspace", back_populates="tasks")  # Relación con el workspace
