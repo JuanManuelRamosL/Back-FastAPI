@@ -45,13 +45,13 @@ def create_user(db: Session, user: schemas.UserCreate):
 def get_user(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id == user_id).first()
 
-def create_task(db: Session, task: schemas.TaskCreate, workspace_id: int, user_id: int ,image_url: Optional[str] = None):
+def create_task(db: Session, task: schemas.TaskCreate, workspace_id: int, user_id: int):
     db_task = models.Task(
         title=task.title,
         description=task.description,
         workspace_id=workspace_id,
         owner_id=user_id,
-        image_url=image_url 
+        image_url=task.image_url 
     )
     db.add(db_task)
     db.commit()
@@ -143,3 +143,4 @@ def delete_hash(key: str, keys: list):
         print(e)
         
 # uvicorn app.main_alt:app_alt --reload --port 8001
+# .\env\Scripts\activate
