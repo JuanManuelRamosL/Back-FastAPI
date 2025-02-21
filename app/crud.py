@@ -2,8 +2,8 @@ from typing import Optional
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from . import models, schemas
-""" from .redisConn import redis_client
-from redis.exceptions import ResponseError """
+from .redisConn import redis_client
+from redis.exceptions import ResponseError
 
 # Crear un workspace
 def create_workspace(db: Session, workspace: schemas.WorkspaceCreate):
@@ -123,7 +123,7 @@ def update_task_status(db: Session, task_id: int, new_status: str):
     db.refresh(task)  # Refrescar la instancia para obtener los datos actualizados
     return task
 
-""" def save_hash(key: str, data: dict):
+def save_hash(key: str, data: dict):
     try:
         redis_client.hset(name=key, mapping=data)
     except ResponseError as e:
@@ -140,7 +140,7 @@ def delete_hash(key: str, keys: list):
     try:
         redis_client.hdel(key, *keys)
     except ResponseError as e:
-        print(e) """
+        print(e)
         
 # uvicorn app.main_alt:app_alt --reload --port 8001
 # .\env\Scripts\activate
